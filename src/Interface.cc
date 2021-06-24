@@ -1,7 +1,7 @@
 #include "Interface.h"
+#include "MetaCmd.h"
 
-Interface::Interface()
-    : quit_(false) {
+Interface::Interface() {
 }
 
 void Interface::printPrompt() {
@@ -17,16 +17,20 @@ void Interface::printInfo() {
 
 void Interface::start() {
     printInfo();
-    quit_ = false;
-    while(!quit_) {
+    while(true) {
         std::string cmd;
         printPrompt();
         std::getline(std::cin, cmd);
-        if(cmd == ".exit") {
-            quit_ = true;
-        } else {
-            std::cout << "Unrecognized command : " << cmd << std::endl; 
+        if(!cmd.empty() && cmd[0] == '.') {
+            switch(MetaCmd::execute(cmd)) {
+            case MetaCmdRes::META_COMMAND_SUCCESS:
+                continue;
+            case MetaCmdRes::META_COMMAND_UNRECOGNIZED:
+                std::cout << "Unrecognized command : " << cmd << std::endl; 
+                continue;
+            }
         }
+        
     }
 }
 

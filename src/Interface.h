@@ -10,8 +10,7 @@ public:
     void printInfo();
     
     void start();
-private:
-    bool quit_;
+
 };
 
 
