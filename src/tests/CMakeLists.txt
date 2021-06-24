@@ -1,0 +1,1 @@
+add_executable(interface_test interface_test.cc ../Interface.cc)
