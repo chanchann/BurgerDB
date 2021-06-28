@@ -1,4 +1,4 @@
-## MySql基础
+## MySql基础补充笔记
 
 - 关系型数据库
 
@@ -154,3 +154,52 @@ O2000      2      1         2000.0
 ```
 
 设计的时候，一定要考虑约束条件，表与表之间的关系
+
+## 关系型数据库范式
+
+### 好处
+
+### 各种范式及例子 todo
+
+## 库操作
+
+## 表操作
+
+创建表 : primary key / unique  / not null / auto increment / default
+
+## CRUD 操作
+
+### insert
+
+此处主要，auto_increment id 一直增长而不会找开头空闲的id
+
+假如 id 越界，改int 为 bigint，改大范围  或者 重置表
+
+```sql
+insert into user(nickname, name, age, sex) values('HW tiancai', 'mitsk', 22,
+'M');
+insert into user(nickname, name, age, sex) values('BD tiancai', 'lighao', 24,
+'M');
+
+
+insert into user(nickname, name, age, sex) values('HW tiancai', 'mitsk', 22,
+'M'),('BD tiancai', 'lighao', 24,'M');
+
+// 两种哪种效率高
+// 下面这种，只用发送一次请求连接
+// --> 数据库连接池项目
+```
+
+mysql client <-----> mysql server
+
+1. tcp三次握手
+
+2. client发送sql到server接收并处理，返回处理结果 
+
+3. 交互完成，四次挥手
+
+### update / delete
+
+### select 
+
+
