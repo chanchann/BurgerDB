@@ -202,4 +202,53 @@ mysql client <-----> mysql server
 
 ### select 
 
+业务上开发尽量少写 * ，尽量写明要选择的列
 
+回表是什么?
+
+注意:
+
+between 是 [] 包含
+
+不是 = null; 而是 is (not) null;
+
+- 去重 distinct
+
+- 空值查询
+
+- union 合并查询  -- 注意不是联合
+
+- 带in 子查询
+
+- 分页查询limit
+
+limit是否提升了我们查询的效率？
+
+可以，满足了limit就停止
+
+所以善于利用limit去提升性能 (前提是没有索引)
+
+利用**explain** 查看SQL语句的执行计划
+
+看rows，扫了多少行
+
+注意 : 而limit的mysql优化，explain显示不出来，所以这的rows是有问题的(只是大略)
+
+拓展阅读 : 索引优化
+
+https://zhuanlan.zhihu.com/p/61687047
+
+- 再探 limit 提升例子
+
+```sql
+pagenum = 20 每页显示20个
+
+select * from user limit (pageno - 1) * pagenum, pagenum;
+// 效率低，低在offset 这里(pageno - 1) * pagenum 前面全部都要遍历一下
+// 比如 limit 10000, 20; 前面10000行都要经过查询
+// 改进 : 用id(索引)作为一个参照
+// 
+select * from user where id > 上一页最后一条数据的id值 limit 20;
+```
+
+### order by
