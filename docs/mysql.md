@@ -250,5 +250,191 @@ select * from user limit (pageno - 1) * pagenum, pagenum;
 // 
 select * from user where id > 上一页最后一条数据的id值 limit 20;
 ```
-
 ### order by
+
+
+```sql
+explain select * from user order by name;
+// extra : Using filesort
+// 当内存装不下排序的数据，会用一些外排序方法，比如filesort(有磁盘IO，效率低，要考虑优化)
+
+explain select name from user by name;
+// 优化了 : extra : Using Index
+```
+
+## group by
+
+分组 -- 一般结合统计操作
+
+```sql
+select age, count(age) from user group by age;
+
+select age, sum(age) from user group by age having age > 20;  // 注意这里having而不是where
+
+// or
+select age, sum(age) from user where age > 20 group by age;
+
+// 也可用多个字段group by
+
+count(*) 会优化，用主键，相当于求行数
+```
+
+关于group by优化
+
+如果不是索引的话，也是 Using filesort, 要排序， Using temporary 建立临时表
+
+## 笔试实践题
+
+```sql
+select count(serno), sum(amount) from bank_bill;
+
+select brno, date, sum(amount) as money from bank_bill group by brno, date order by brno, money desc;
+```
+
+## 连接查询
+
+一次查询多张表，增加效率
+
+### 内连接查询
+
+查询两张表之间的交集 inner join
+
+### 外连接查询
+
+left/right [outer] join
+
+不区分大小表，哪边连接就算全表扫描
+
+1. left连接查询
+
+左表特有的数据
+
+把left的表所有的数据显示出来，在右表中不存在相应数据 则显示NULL
+
+查找没有可以用外连接
+
+```sql
+// 查找没有考试的人
+select * from student where uid not in (select distinct uid from exam);
+
+// left join 写法 -- 利用null
+select a.* from student a left join exam b on a.uid=b.uid where b.cid is null;
+```
+
+2. right连接查询
+
+右表特有的数据
+
+### 场景1 
+
+```sql
+student:
+uid name age sex
+
+course:
+cid cname credit
+
+exam:
+uid cid time score
+```
+
+```sql
+create table student(
+uid int unsigned primary key not null auto_increment,
+name varchar(50) not null,
+age tinyint unsigned not null,
+sex ENUM('M', 'W') not null
+);
+
+create table course(
+cid int unsigned primary key not null auto_increment,
+cname varchar(50) not null,
+credit tinyint unsigned not null
+);
+
+create table exam(
+uid int unsigned not null,
+cid int unsigned not null,
+time date not null,
+score float not null
+-- 联合主键
+primary key(uid, cid) 
+);
+```
+
+```sql
+// 查看ligh某一门课的成绩
+// 预置条件 uid : 1 cid : 2
+select score from exam where uid = 1 and cid = 2; 
+
+// 先写两张表的查询， 命名表
+select a.uid, a.name, a.age, a.sex from student a where a.uid = 1;
+
+select c.scrore from exam c where c.uid = 1 and c.cid = 2;
+
+// 合并后
+// inner join 是join的默认
+// on a.uid = c.uid 通过uid连接，区分大表和小表，按照数据量区分大小
+// 小表永远是整表扫描(所以给小表建索引没用), 然后去大表搜索
+// 从student小表中取出所有的a.uid, 然后拿着这些uid去exam大表中搜索
+select a.uid, a.name, a.age, a.sex, c.score from student from student a inner join exam c on a.uid = c.uid where c.uid = 1 and c.cid = 2;
+// 这里为什么不是a.uid = 1?  因为小表是整表扫描
+```
+
+// 其他例子见pdf
+
+### limit 和 inner join 的优化
+
+```sql
+select * from user limit 1500000, 10;
+
+// 相对于选取所有列，效率提升
+select id from user limit 1500000, 10;
+
+// 如果就要选择很多列，如何提升?
+// 1. 通过添加索引字段快速过滤
+select * from user where id > xx limit 10;
+
+// 2. 生成临时表
+select a.id, a.email, a.password from user a inner join (select id from user limit 1500000, 10) b on a.id = b.id;
+```
+
+notes:
+
+- 对于如何查询多表过程，通过explain去查看过程
+
+- 看谁先查，谁后查，谁是全表扫描，谁用到了索引
+
+- 如果有where，先去过滤，这样可能导致大小表关系的逆转
+
+- 如果是联合主键，用到后面的字段是不会产生索引优化的
+
+- not in 有个天然不好的地方在于，对于索引的命中比较低
+
+一些地方说not in 用不到索引 -- 不准确
+
+```sql
+select * from student where uid not in (select distinct uid from exam);
+
+select distinct uid from exam 会产生一张中间表存储结果供外面的sql来查询
+```
+
+- 对于inner join内连接，过滤条件写在where的后面和on连接条件里面效果是一样的。
+
+- 对比outer join 则效果不一样
+
+对于左连接，肯定要先去扫左表
+
+所以一般来说，我们把限制条件放在on里，把null 条件放where中
+
+## Mysql 存储引擎
+
+```sql
+create table xx {
+表的结构
+数据
+索引
+}
+
+存储引擎直接影响上面内容的存储方式
+```
