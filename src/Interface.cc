@@ -1,18 +1,18 @@
 #include "Interface.h"
 #include "MetaCmd.h"
+#include <cstdio>
 
-Interface::Interface() {
-}
+namespace burgerdb {
 
 void Interface::printPrompt() {
-    std::cout << "BurgerDB > ";
+    fprintf(stderr, "BurgerDB > ");
 }
 
 void Interface::printInfo() {
-    std::cout << "BurgerDB version 0.1.0" << std::endl;
-    std::cout << "Enter \".help\" for usage hints." << std::endl;
-    std::cout << "Connected to a transient in-memory database." << std::endl;
-    std::cout << "Use \".open FILENAME\" to reopen on a persistent database." << std::endl;
+    fprintf(stderr, "BurgerDB version 0.1.0\n");
+    fprintf(stderr, "Enter \".help\" for usage hints.\n");
+    fprintf(stderr, "Connected to a transient in-memory database.\n");
+    fprintf(stderr, "Use \".open FILENAME\" to reopen on a persistent database.\n");
 }
 
 void Interface::start() {
@@ -33,6 +33,10 @@ void Interface::start() {
         
     }
 }
+
+} // namespace burgerdb
+
+
 
 
 

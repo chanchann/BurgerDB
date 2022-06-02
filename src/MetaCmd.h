@@ -1,7 +1,9 @@
-#ifndef METACMD_H
-#define METACMD_H
+#ifndef BURGERDB_METACMD_H
+#define BURGERDB_METACMD_H
 
 #include <string>
+
+namespace burgerdb {
 
 enum class MetaCmdRes {
     META_COMMAND_SUCCESS,
@@ -30,5 +32,6 @@ public:
     }
 };
 
+} // namespace burgerdb
 
-#endif // METACMD_H
+#endif // BURGERDB_METACMD_H

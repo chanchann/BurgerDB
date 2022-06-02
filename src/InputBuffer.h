@@ -1,9 +1,16 @@
-#ifndef INPUTBUFFER_H
-#define INPUTBUFFER_H
+#ifndef BURGERDB_INPUTBUFFER_H
+#define BURGERDB_INPUTBUFFER_H
 
-class InputBuffer {
+#include <cstdlib>
 
+namespace burgerdb {
+
+struct InputBuffer {
+    char *buf;
+    size_t buf_len;
+    ssize_t input_len;
 };
 
+} // namespace burgerdb
 
-#endif // INPUTBUFFER_H
+#endif // BURGERDB_INPUTBUFFER_H

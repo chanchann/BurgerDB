@@ -1,17 +1,21 @@
-#ifndef INTERFACE_H
-#define INTERFACE_H
+#ifndef BURGERDB_INTERFACE_H
+#define BURGERDB_INTERFACE_H
 
-#include <iostream>
+namespace burgerdb
+{
 
 class Interface {
 public:
-    Interface();
+    Interface() = default;
+
     void printPrompt();
+    
     void printInfo();
     
     void start();
 
 };
+    
+} // namespace burgerdb
 
-
-#endif // INTERFACE_H
+#endif // BURGERDB_INTERFACE_H
