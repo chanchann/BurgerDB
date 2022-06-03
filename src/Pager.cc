@@ -50,7 +50,7 @@ int Pager::get(uint32_t page_num, void **page) {
             ssize_t bytes_read = read(fd_, new_page, PAGE_SIZE);
             if(bytes_read == -1) {
                 fprintf(stderr, "Error reading file: %d\n", errno);
-                free(new_page);
+                ::free(new_page);
                 // TODO : should I just exit?
                 return READ_FILE_ERROR;
             }
@@ -59,6 +59,40 @@ int Pager::get(uint32_t page_num, void **page) {
     }
     page = &pages_[page_num];
     return SUCCESS;
+}
+
+int Pager::flush(uint32_t page_num, uint32_t size) {
+    if(pages_[page_num] == nullptr) {
+        return FLUSH_NULL_PAGE;
+    }
+    off_t offset = lseek(fd_, page_num * PAGE_SIZE, SEEK_SET);
+    if(offset == -1) {
+        return SEEK_ERROR;
+    }
+    ssize_t bytes_written = write(fd_, pages_[page_num], size);
+
+    if(bytes_written == -1) {
+        return WRITE_FILE_ERROR;
+    }
+}
+
+int Pager::free(int index) {
+    ::free(pages_[index]);
+    pages_[index] = nullptr;
+    return SUCCESS;
+}
+
+int Pager::close() {
+    int result = ::close(fd_);
+    if(result == -1) {
+        return CLOSE_FILE_ERROR;
+    }
+    // todo : why loop to free again ?
+    for(uint32_t i = 0; i < TABLE_MAX_PAGES; i++) {
+        if(pages_[i]) {
+            free(i);
+        }
+    }
 }
 
 } // namespace burgerdb

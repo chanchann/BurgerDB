@@ -20,7 +20,17 @@ public:
 
     int get(uint32_t page_num, void** page);
 
+    int flush(uint32_t page_num, uint32_t size);
+
+    int free(int index); 
+
+    int close();
+
     uint32_t file_len() { return file_len_; }
+
+    void **pages() { return pages_; }
+
+    void *pages(int index) { return pages_[index]; }
 
 private:
     int fd_;
