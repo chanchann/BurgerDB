@@ -3,35 +3,51 @@
 
 #include <string>
 
-namespace burgerdb
-{
+namespace burgerdb {
 
 enum class StatementType {
-    STATEMENT_INSERT, 
-    STATEMENT_SELECT
+    INSERT, 
+    SELECT,
+    UNKNOWN
 };
-
-std::string StmtToStr(StatementType stmtType) {
-    switch (stmtType) {
-    case StatementType::STATEMENT_INSERT: 
-        return "STATEMENT_INSERT";
-    case StatementType::STATEMENT_SELECT:  
-        return "STATEMENT_SELECT";
-    default:
-        return "UNKNOWN";
-    }
-}
 
 enum class ExecuteResult {
-    EXECUTE_SUCCESS,
-    EXECUTE_TABLE_FULL
+    SUCCESS,
+    TABLE_FULL
 };
 
+enum class PrepareResult {
+    SUCCESS,
+    NEGATIVE_ID,
+    STRING_TOO_LONG,
+    SYNTAX_ERROR,
+    UNRECOGNIZED_STATEMENT
+};
+
+class Row;
+class Table;
+class InputBuffer;
+
 class Statement {
+    Statement();
+
+    ~Statement();
+
+    ExecuteResult execute(const Table &table);
+
+    PrepareResult prepare(const InputBuffer &buffer);
 
 private:
-    StatementType stmtType_;
+    PrepareResult prepare_insert(const InputBuffer &buffer);
 
+    PrepareResult prepare_select(const InputBuffer &buffer);
+
+    ExecuteResult execute_insert(const Table &table);
+
+    ExecuteResult execute_select(const Table &table);
+private:
+    StatementType type_;
+    Row *row_to_insert_;            // only used by insert statement
 };
     
 } // namespace burgerdb

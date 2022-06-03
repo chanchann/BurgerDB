@@ -1,6 +1,7 @@
 #include "DbClient.h"
 #include "MetaCmd.h"
 #include "Status.h"
+#include "Statement.h"
 #include <cstdio>
 
 namespace burgerdb {
@@ -25,16 +26,21 @@ void DbClient::start() {
             fprintf(stderr, "Error reading input\n");
             continue;
         }
+        // meta
         // we must have at least one char in buf('\0')
         if(input_buffer_.buf[0] == '.') {
             switch(MetaCmd::execute(input_buffer_, db_)) {
-            case MetaCmdRes::META_COMMAND_SUCCESS:
+            case MetaCmdRes::COMMAND_SUCCESS:
                 continue;
-            case MetaCmdRes::META_COMMAND_UNRECOGNIZED:
+            case MetaCmdRes::COMMAND_UNRECOGNIZED:
                 fprintf(stderr, "Unrecognized command '%s'\n", input_buffer_.buf);
                 continue;
             }
         }
+
+        // statement
+        Statement statement;
+
     }
 }
 

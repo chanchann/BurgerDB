@@ -6,18 +6,18 @@
 namespace burgerdb {
 
 enum class MetaCmdRes {
-    META_COMMAND_SUCCESS,
-    META_COMMAND_UNRECOGNIZED
+    COMMAND_SUCCESS,
+    COMMAND_UNRECOGNIZED
 };
 
 std::string metaCmdResToStr(MetaCmdRes metaCmdRes) {
     switch(metaCmdRes) {
-    case MetaCmdRes::META_COMMAND_SUCCESS:
+    case MetaCmdRes::COMMAND_SUCCESS:
         return "META_COMMAND_SUCCESS";
-    case MetaCmdRes::META_COMMAND_UNRECOGNIZED:
+    case MetaCmdRes::COMMAND_UNRECOGNIZED:
         return "META_COMMAND_UNRECOGNIZED";
     default:
-        return "UNKNOWN";
+        return "META_UNKNOWN";
     }
 }
 

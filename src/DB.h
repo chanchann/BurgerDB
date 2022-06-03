@@ -7,7 +7,6 @@
 namespace burgerdb {
 
 class Table;
-class Pager;
 class DbClient;
 
 class DB : public Noncopyable {
@@ -28,7 +27,6 @@ public:
     
 private:
     Table *table_;
-    Pager *pager_;
     DbClient *db_client_;
 };
 

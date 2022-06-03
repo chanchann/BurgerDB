@@ -10,7 +10,7 @@ MetaCmdRes MetaCmd::execute(const InputBuffer &input, DB *db){
         db->close();
         exit(EXIT_SUCCESS);
     } else {
-        return MetaCmdRes::META_COMMAND_UNRECOGNIZED;
+        return MetaCmdRes::COMMAND_UNRECOGNIZED;
     }
 }
 
