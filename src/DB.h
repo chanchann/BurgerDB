@@ -7,16 +7,29 @@
 namespace burgerdb {
 
 class Table;
+class Pager;
+class DbClient;
 
 class DB : public Noncopyable {
 public:
-    DB() = default;
+    DB();
 
-    // todo : status
-    void open(std::string &&file_name);
+    ~DB();
 
+    int open(const std::string &file_name);
+
+    // 1. flushes the page cache to disk
+    // 2. closes the database file
+    int close();
+
+    int start_client();
+
+    int stop_client();
+    
 private:
-    Table *table_ = nullptr;
+    Table *table_;
+    Pager *pager_;
+    DbClient *db_client_;
 };
 
 } // namespace burgerdb

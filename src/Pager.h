@@ -16,7 +16,11 @@ namespace burgerdb {
 class Pager {
 public:
     // opens the database file and keeps track of its size.
-    int open(const std::string &filename);
+    int init(const std::string &filename);
+
+    int get(uint32_t page_num, void** page);
+
+    uint32_t file_len() { return file_len_; }
 
 private:
     int fd_;

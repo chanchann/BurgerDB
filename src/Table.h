@@ -2,16 +2,22 @@
 #define BURGERDB_TABLE_H
 
 #include <cstdint>
+#include "Noncopyable.h"
 
 namespace burgerdb {
 
-class Pager;
+class Table : public Noncopyable {
+public:
+    Table() = default;
 
-class Table {
-    
+    ~Table() = default;
+
+    uint32_t num_rows() { return num_rows_; }
+
+    void set_num_rows(uint32_t num_rows) { num_rows_ = num_rows; }
+
 private:
-    Pager *pager;
-    uint32_t num_rows;
+    uint32_t num_rows_;
 };
     
 } // namespace burgerdb

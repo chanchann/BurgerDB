@@ -1,36 +1,40 @@
-#include "Interface.h"
+#include "DbClient.h"
 #include "MetaCmd.h"
+#include "Status.h"
 #include <cstdio>
 
 namespace burgerdb {
 
-void Interface::printPrompt() {
+void DbClient::printPrompt() {
     fprintf(stderr, "BurgerDB > ");
 }
 
-void Interface::printInfo() {
+void DbClient::printInfo() {
     fprintf(stderr, "BurgerDB version 0.1.0\n");
     fprintf(stderr, "Enter \".help\" for usage hints.\n");
     fprintf(stderr, "Connected to a transient in-memory database.\n");
     fprintf(stderr, "Use \".open FILENAME\" to reopen on a persistent database.\n");
 }
 
-void Interface::start() {
+void DbClient::start() {
     printInfo();
     while(true) {
-        std::string cmd;
         printPrompt();
-        std::getline(std::cin, cmd);
-        if(!cmd.empty() && cmd[0] == '.') {
-            switch(MetaCmd::execute(cmd)) {
+        int ret = input_buffer_.read();
+        if(ret != SUCCESS) {
+            fprintf(stderr, "Error reading input\n");
+            continue;
+        }
+        // we must have at least one char in buf('\0')
+        if(input_buffer_.buf[0] == '.') {
+            switch(MetaCmd::execute(input_buffer_, db_)) {
             case MetaCmdRes::META_COMMAND_SUCCESS:
                 continue;
             case MetaCmdRes::META_COMMAND_UNRECOGNIZED:
-                std::cout << "Unrecognized command : " << cmd << std::endl; 
+                fprintf(stderr, "Unrecognized command '%s'\n", input_buffer_.buf);
                 continue;
             }
         }
-        
     }
 }
 

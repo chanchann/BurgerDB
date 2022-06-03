@@ -21,15 +21,12 @@ std::string metaCmdResToStr(MetaCmdRes metaCmdRes) {
     }
 }
 
+class DB;
+class InputBuffer;
+
 class MetaCmd {
 public:    
-    static MetaCmdRes execute(std::string& cmd) {
-        if(cmd == ".exit") {
-            exit(EXIT_SUCCESS);
-        } else {
-            return MetaCmdRes::META_COMMAND_UNRECOGNIZED;
-        }
-    }
+    static MetaCmdRes execute(const InputBuffer &buf, DB *db);
 };
 
 } // namespace burgerdb

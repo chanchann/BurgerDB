@@ -1,13 +1,13 @@
-#include "Interface.h"
+#include "DbClient.h"
 
 void test01() {
-    Interface iface;
+    DbClient iface;
     iface.printPrompt();
     iface.printInfo();
 }
 
 void test02() {
-    Interface iface;
+    DbClient iface;
     iface.start();
 }
 

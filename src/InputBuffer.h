@@ -6,9 +6,11 @@
 namespace burgerdb {
 
 struct InputBuffer {
-    char *buf;
-    size_t buf_len;
-    ssize_t input_len;
+    int read();
+
+    char *buf = nullptr;
+    size_t buf_len = 0;
+    ssize_t input_len = 0;
 };
 
 } // namespace burgerdb
