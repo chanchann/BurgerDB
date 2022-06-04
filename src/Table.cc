@@ -46,7 +46,7 @@ int Table::deinit() {
 }
 
 Cursor *Table::start() {
-    auto *cursor = new Cursor(this, num_rows_);
+    auto *cursor = new Cursor(this, 0);
     cursor->set_end_of_table(num_rows_ == 0);
     return cursor;
 }

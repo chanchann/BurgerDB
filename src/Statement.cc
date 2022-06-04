@@ -80,7 +80,7 @@ ExecuteResult Statement::execute_insert(Table *table) {
 ExecuteResult Statement::execute_select(Table *table) {
     Cursor* cursor = table->start();
     Row row;
-    while(!(cursor->end_of_table())) {
+    while(!cursor->end_of_table()) {
         row.deserialize(cursor->value());
         row.print();
         cursor->next();

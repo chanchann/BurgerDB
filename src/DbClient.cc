@@ -82,7 +82,7 @@ void DbClient::start() {
 
 void DbClient::stop() {
     running_ = false;
-    fprintf(stderr, "Good bye.");
+    fprintf(stderr, "Good bye.\n");
 }
 
 } // namespace burgerdb
