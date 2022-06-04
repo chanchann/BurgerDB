@@ -13,6 +13,7 @@ enum Status {
     SEEK_ERROR,
     WRITE_FILE_ERROR,
     CLOSE_FILE_ERROR,
+    SEEK_FILE_ERROR,
 };
 
 } // namespace burgerdb

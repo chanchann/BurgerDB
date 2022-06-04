@@ -9,11 +9,13 @@ class DB;
 
 class DbClient {
 public:
-    DbClient() = default;
+    DbClient(DB *db);
+
+    ~DbClient() = default;
 
     void start();
 
-    // void stop();
+    void stop();
 
 private:
     void printPrompt();
@@ -23,6 +25,7 @@ private:
 private:
     InputBuffer input_buffer_;
     DB *db_;
+    bool running_ = false;
 };
     
 } // namespace burgerdb

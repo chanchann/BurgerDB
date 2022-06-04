@@ -8,10 +8,10 @@ namespace burgerdb {
 MetaCmdRes MetaCmd::execute(const InputBuffer &input, DB *db){
     if(strcmp(input.buf, ".exit") == 0) {
         db->close();
-        exit(EXIT_SUCCESS);  // todo : more elegant
     } else {
-        return MetaCmdRes::COMMAND_UNRECOGNIZED;
+        return MetaCmdRes::UNRECOGNIZED;
     }
+    return MetaCmdRes::SUCCESS;
 }
 
 } // namespace burgerdb

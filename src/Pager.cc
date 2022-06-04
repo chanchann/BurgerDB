@@ -7,21 +7,24 @@
 namespace burgerdb {
 
 int Pager::init(const std::string &filename) {
-    int fd = open(filename.c_str(),
+    fd_ = open(filename.c_str(),
                     O_RDWR |      // Read/Write mode
                         O_CREAT,  // Create file if it does not exist
                     S_IWUSR |     // User write permission
                         S_IRUSR   // User read permission
                     );
     // todo : call it once?
-    if (fd == -1) {
+    if (fd_ == -1) {
         fprintf(stderr, "Unable to open file\n");
         return OPEN_FILE_ERROR;
     }
     // SEEK_END : The file offset is set to the size of the file plus offset bytes.
     off_t file_len = lseek(fd_, 0, SEEK_END);
+    if(file_len == -1) {
+        fprintf(stderr, "Seek Error, errorno : %d\n", errno);
+        return SEEK_FILE_ERROR;
+    }
 
-    fd_ = fd;
     file_len_ = static_cast<uint32_t>(file_len);
 
     for (uint32_t i = 0; i < TABLE_MAX_PAGES; i++) {
@@ -34,7 +37,6 @@ int Pager::get(uint32_t page_num, uint8_t **page) {
     if (page_num > TABLE_MAX_PAGES) {
         fprintf(stderr, "Tried to fetch page number out of bounds. %d > %d\n", page_num,
             TABLE_MAX_PAGES);
-        *page = nullptr;
         return PAGE_OUT_OF_BOUND;
     }
     if(pages_[page_num] == nullptr) {
@@ -45,7 +47,7 @@ int Pager::get(uint32_t page_num, uint8_t **page) {
         if(file_len_ % PAGE_SIZE) {
             num_pages += 1;
         }
-        if(page_num < num_pages) {
+        if(page_num <= num_pages) {
             // SEEK_SET : The file offset is set to offset bytes.
             lseek(fd_, page_num * PAGE_SIZE, SEEK_SET);
             ssize_t bytes_read = read(fd_, new_page, PAGE_SIZE);
@@ -60,7 +62,7 @@ int Pager::get(uint32_t page_num, uint8_t **page) {
         pages_[page_num] = new_page;
     }
 
-    page = &pages_[page_num];
+    *page = pages_[page_num];
     return SUCCESS;
 }
 

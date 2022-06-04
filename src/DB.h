@@ -23,8 +23,10 @@ public:
 
     int start_client();
 
-//    int stop_client();
+    int stop_client();
     
+    Table *table() const;
+
 private:
     Table *table_;
     DbClient *db_client_;

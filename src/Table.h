@@ -32,7 +32,7 @@ public:
 
     void increase_num_rows() { num_rows_++; };
 private:
-    uint32_t num_rows_ = 0;
+    uint32_t num_rows_;
     Pager *pager_;
 };
     

@@ -6,8 +6,8 @@
 namespace burgerdb {
 
 enum class MetaCmdRes {
-    COMMAND_SUCCESS,
-    COMMAND_UNRECOGNIZED
+    SUCCESS,
+    UNRECOGNIZED
 };
 
 class DB;

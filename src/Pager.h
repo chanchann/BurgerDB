@@ -15,6 +15,10 @@ namespace burgerdb {
 // The Table object makes requests for pages through the pager:
 class Pager {
 public:
+    Pager() = default;
+
+    ~Pager() = default;
+
     // opens the database file and keeps track of its size.
     int init(const std::string &filename);
 

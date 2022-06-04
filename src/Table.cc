@@ -5,8 +5,9 @@
 
 namespace burgerdb {
 
-Table::Table() : 
-    pager_(new Pager) {
+Table::Table()
+    : num_rows_(0),
+    pager_(new Pager){
 }
 
 Table::~Table() {
