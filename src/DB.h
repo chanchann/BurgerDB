@@ -23,7 +23,7 @@ public:
 
     int start_client();
 
-    int stop_client();
+//    int stop_client();
     
 private:
     Table *table_;

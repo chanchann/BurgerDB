@@ -2,6 +2,7 @@
 #define BURGERDB_TABLE_H
 
 #include <cstdint>
+#include <string>
 #include "Noncopyable.h"
 
 namespace burgerdb {
@@ -19,7 +20,7 @@ public:
 
     int deinit();
 
-    Cursor *start();
+    Cursor *start(); 
 
     Cursor *end();
 
@@ -29,6 +30,7 @@ public:
 
     void set_num_rows(uint32_t num_rows) { num_rows_ = num_rows; }
 
+    void increase_num_rows() { num_rows_++; };
 private:
     uint32_t num_rows_ = 0;
     Pager *pager_;

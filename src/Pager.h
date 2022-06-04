@@ -18,24 +18,24 @@ public:
     // opens the database file and keeps track of its size.
     int init(const std::string &filename);
 
-    int get(uint32_t page_num, void** page);
+    int get(uint32_t page_num, uint8_t **page);
 
     int flush(uint32_t page_num, uint32_t size);
 
-    int free(int index); 
+    int free(uint32_t index);
 
     int close();
 
     uint32_t file_len() { return file_len_; }
 
-    void **pages() { return pages_; }
+    uint8_t **pages() { return pages_; }
 
-    void *pages(int index) { return pages_[index]; }
+    uint8_t *pages(uint32_t index) { return pages_[index]; }
 
 private:
     int fd_;
     uint32_t file_len_;
-    void *pages_[TABLE_MAX_PAGES];
+    uint8_t *pages_[TABLE_MAX_PAGES];
 };
     
 

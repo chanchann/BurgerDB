@@ -11,10 +11,10 @@ Cursor::Cursor(Table *table, uint32_t row_num)
     row_num_(row_num) {
 }
 
-void *Cursor::value() {
+uint8_t *Cursor::value() {
     uint32_t page_num = row_num_ / ROWS_PER_PAGE;
     Pager *pager = table_->pager();
-    void *page;
+    uint8_t *page = nullptr;
     int ret = pager->get(page_num, &page);
     if(ret != SUCCESS) {
         return nullptr;

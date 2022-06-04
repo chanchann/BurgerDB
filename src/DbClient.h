@@ -5,6 +5,8 @@
 
 namespace burgerdb {
 
+class DB;
+
 class DbClient {
 public:
     DbClient() = default;

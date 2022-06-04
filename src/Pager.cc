@@ -22,7 +22,7 @@ int Pager::init(const std::string &filename) {
     off_t file_len = lseek(fd_, 0, SEEK_END);
 
     fd_ = fd;
-    file_len_ = file_len;
+    file_len_ = static_cast<uint32_t>(file_len);
 
     for (uint32_t i = 0; i < TABLE_MAX_PAGES; i++) {
         pages_[i] = nullptr;
@@ -30,15 +30,16 @@ int Pager::init(const std::string &filename) {
     return SUCCESS;
 }
 
-int Pager::get(uint32_t page_num, void **page) {
+int Pager::get(uint32_t page_num, uint8_t **page) {
     if (page_num > TABLE_MAX_PAGES) {
         fprintf(stderr, "Tried to fetch page number out of bounds. %d > %d\n", page_num,
             TABLE_MAX_PAGES);
+        *page = nullptr;
         return PAGE_OUT_OF_BOUND;
     }
     if(pages_[page_num] == nullptr) {
         // Cache miss. Allocate memory and load from file.
-        void *new_page = malloc(PAGE_SIZE);
+        uint8_t *new_page = new uint8_t[PAGE_SIZE];
         uint32_t num_pages = file_len_ / PAGE_SIZE;
         // We might save a partial page at the end of the file
         if(file_len_ % PAGE_SIZE) {
@@ -50,13 +51,15 @@ int Pager::get(uint32_t page_num, void **page) {
             ssize_t bytes_read = read(fd_, new_page, PAGE_SIZE);
             if(bytes_read == -1) {
                 fprintf(stderr, "Error reading file: %d\n", errno);
-                ::free(new_page);
+                delete[] new_page;
+                new_page = nullptr;
                 // TODO : should I just exit?
                 return READ_FILE_ERROR;
             }
         }
         pages_[page_num] = new_page;
     }
+
     page = &pages_[page_num];
     return SUCCESS;
 }
@@ -74,10 +77,11 @@ int Pager::flush(uint32_t page_num, uint32_t size) {
     if(bytes_written == -1) {
         return WRITE_FILE_ERROR;
     }
+    return SUCCESS;
 }
 
-int Pager::free(int index) {
-    ::free(pages_[index]);
+int Pager::free(uint32_t index) {
+    delete[] pages_[index];
     pages_[index] = nullptr;
     return SUCCESS;
 }
@@ -93,6 +97,7 @@ int Pager::close() {
             free(i);
         }
     }
+    return SUCCESS;
 }
 
 } // namespace burgerdb

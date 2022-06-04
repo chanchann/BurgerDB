@@ -2,6 +2,7 @@
 #include "InputBuffer.h"
 #include "Config.h"
 #include "Table.h"
+#include "Cursor.h"
 #include <string.h>
 
 namespace burgerdb {
@@ -38,11 +39,11 @@ PrepareResult Statement::prepare_insert(const InputBuffer &input) {
         return PrepareResult::NEGATIVE_ID;
     }
 
-    if(strlen(username) > COLUMN_USERNAME_SIZE || strlen(email) > COLUMN_EMAIL_SIZE) {
+    if(strlen(username) > Row::COLUMN_USERNAME_SIZE || strlen(email) > Row::COLUMN_EMAIL_SIZE) {
         return PrepareResult::STRING_TOO_LONG;
     }
 
-    row_to_insert_->id = id;
+    row_to_insert_->id = static_cast<uint32_t>(id);
     strcpy(row_to_insert_->username, username);
     strcpy(row_to_insert_->email, email);
 
@@ -54,20 +55,37 @@ PrepareResult Statement::prepare_select(const InputBuffer &buffer) {
     return PrepareResult::SUCCESS;
 }
 
-ExecuteResult Statement::execute(const Table &table) {
+ExecuteResult Statement::execute(Table *table) {
   switch (type_) {
     case (StatementType::INSERT):
         return execute_insert(table);
     case (StatementType::SELECT):
         return execute_select(table);
+    default:
+        return ExecuteResult::UNKNOWN_TYPE;
   }
 }
 
-ExecuteResult execute_insert(const Table &table) {
-    if(table.num_rows() >= TABLE_MAX_ROWS) {
+ExecuteResult Statement::execute_insert(Table *table) {
+    if(table->num_rows() >= TABLE_MAX_ROWS) {
         return ExecuteResult::TABLE_FULL;
     }
+    Cursor* cursor = table->end();
+    row_to_insert_->serialize(cursor->value());
+    table->increase_num_rows();
+    delete cursor;
+    return ExecuteResult::SUCCESS;
+}
 
+ExecuteResult Statement::execute_select(Table *table) {
+    Cursor* cursor = table->start();
+    Row row;
+    while(!(cursor->end_of_table())) {
+        row.deserialize(cursor->value());
+        row.print();
+        cursor->next();
+    }
+    free(cursor);
     return ExecuteResult::SUCCESS;
 }
 

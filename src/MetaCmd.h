@@ -10,17 +10,6 @@ enum class MetaCmdRes {
     COMMAND_UNRECOGNIZED
 };
 
-std::string metaCmdResToStr(MetaCmdRes metaCmdRes) {
-    switch(metaCmdRes) {
-    case MetaCmdRes::COMMAND_SUCCESS:
-        return "META_COMMAND_SUCCESS";
-    case MetaCmdRes::COMMAND_UNRECOGNIZED:
-        return "META_COMMAND_UNRECOGNIZED";
-    default:
-        return "META_UNKNOWN";
-    }
-}
-
 class DB;
 class InputBuffer;
 

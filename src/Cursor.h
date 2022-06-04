@@ -13,11 +13,14 @@ public:
     Cursor(Table *table, uint32_t row_num);
 
     // Returns a pointer to the position described by the cursor
-    void *value();
+    uint8_t *value();
 
     void next();
 
     void set_end_of_table(bool end_of_table) { end_of_table_ = end_of_table; }
+
+    bool end_of_table() { return end_of_table_; }
+
 private: 
     Table *table_;
     uint32_t row_num_;

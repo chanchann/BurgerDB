@@ -21,13 +21,12 @@ set(CXX_FLAGS
  -Wno-unused-but-set-variable
  -Wno-unused-variable
  -Wno-unused-result
- -Wold-style-cast
  -Woverloaded-virtual
- -Wpointer-arith
  -Wshadow
  -Wwrite-strings
  -march=native
- # -MMD
+ -Wno-pointer-arith
+  # -MMD
  -std=c++11
  -rdynamic
  -pthread   # check
@@ -51,6 +50,5 @@ string(TOUPPER ${CMAKE_BUILD_TYPE} BUILD_TYPE)
 message(STATUS "CXX_FLAGS = " ${CMAKE_CXX_FLAGS} " " ${CMAKE_CXX_FLAGS_${BUILD_TYPE}})
 
 include_directories(${PROJECT_SOURCE_DIR}/src)
-
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/src)

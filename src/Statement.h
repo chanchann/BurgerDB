@@ -13,7 +13,8 @@ enum class StatementType {
 
 enum class ExecuteResult {
     SUCCESS,
-    TABLE_FULL
+    TABLE_FULL,
+    UNKNOWN_TYPE
 };
 
 enum class PrepareResult {
@@ -29,22 +30,23 @@ class Table;
 class InputBuffer;
 
 class Statement {
+public:
     Statement();
 
     ~Statement();
 
-    ExecuteResult execute(const Table &table);
-
     PrepareResult prepare(const InputBuffer &buffer);
 
+    ExecuteResult execute(Table *table);
+    
 private:
     PrepareResult prepare_insert(const InputBuffer &buffer);
 
     PrepareResult prepare_select(const InputBuffer &buffer);
 
-    ExecuteResult execute_insert(const Table &table);
+    ExecuteResult execute_insert(Table *table);
 
-    ExecuteResult execute_select(const Table &table);
+    ExecuteResult execute_select(Table *table);
 private:
     StatementType type_;
     Row *row_to_insert_;            // only used by insert statement
