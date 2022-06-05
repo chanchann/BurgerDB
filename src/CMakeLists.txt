@@ -9,6 +9,7 @@ set(DB_SRCS
     Row.cc 
     Statement.cc 
     Table.cc 
+    BTree.cc
 )
 
 add_executable(burgerdb ${DB_SRCS})

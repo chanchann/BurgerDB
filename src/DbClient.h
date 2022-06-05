@@ -2,12 +2,13 @@
 #define BURGERDB_DBCLIENT_H
 
 #include "InputBuffer.h"
+#include "Noncopyable.h"
 
 namespace burgerdb {
 
 class DB;
 
-class DbClient {
+class DbClient : public Noncopyable {
 public:
     DbClient(DB *db);
 

@@ -14,6 +14,7 @@ enum Status {
     WRITE_FILE_ERROR,
     CLOSE_FILE_ERROR,
     SEEK_FILE_ERROR,
+    CORRUPTED_FILE,     // file is not a whole number of pages
 };
 
 } // namespace burgerdb

@@ -24,8 +24,11 @@ int Pager::init(const std::string &filename) {
         fprintf(stderr, "Seek Error, errorno : %d\n", errno);
         return SEEK_FILE_ERROR;
     }
-
     file_len_ = static_cast<uint32_t>(file_len);
+    num_pages_ = file_len_ / PAGE_SIZE;
+    if(file_len_ % PAGE_SIZE != 0) {
+        return CORRUPTED_FILE;
+    }
 
     for (uint32_t i = 0; i < TABLE_MAX_PAGES; i++) {
         pages_[i] = nullptr;
@@ -60,13 +63,16 @@ int Pager::get(uint32_t page_num, uint8_t **page) {
             }
         }
         pages_[page_num] = new_page;
+        if(page_num >= num_pages_) {
+            num_pages_ = page_num + 1;
+        }
     }
 
     *page = pages_[page_num];
     return SUCCESS;
 }
 
-int Pager::flush(uint32_t page_num, uint32_t size) {
+int Pager::flush(uint32_t page_num) {
     if(pages_[page_num] == nullptr) {
         return FLUSH_NULL_PAGE;
     }
@@ -74,7 +80,10 @@ int Pager::flush(uint32_t page_num, uint32_t size) {
     if(offset == -1) {
         return SEEK_ERROR;
     }
-    ssize_t bytes_written = write(fd_, pages_[page_num], size);
+
+    // Every node is going to take up exactly one page, even if it’s not full. 
+    // That means our pager has no needs to support reading/writing partial pages.
+    ssize_t bytes_written = write(fd_, pages_[page_num], PAGE_SIZE);
 
     if(bytes_written == -1) {
         return WRITE_FILE_ERROR;

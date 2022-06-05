@@ -2,6 +2,7 @@
 #define BURGERDB_STATEMENT_H
 
 #include <string>
+#include "Noncopyable.h"
 
 namespace burgerdb {
 
@@ -29,7 +30,7 @@ class Row;
 class Table;
 class InputBuffer;
 
-class Statement {
+class Statement : public Noncopyable {
 public:
     Statement();
 

@@ -3,34 +3,69 @@
 #include "Config.h"
 #include "Pager.h"
 #include "Status.h"
+#include "BTree.h"
+
+#include <string.h>
 
 namespace burgerdb {
 
-Cursor::Cursor(Table *table, uint32_t row_num)
+Cursor::Cursor(Table *table, uint32_t page_num, uint32_t cell_num) 
     : table_(table),
-    row_num_(row_num) {
+    page_num_(page_num),
+    cell_num_(cell_num) {
+
 }
 
 uint8_t *Cursor::value() {
-    uint32_t page_num = row_num_ / ROWS_PER_PAGE;
-    Pager *pager = table_->pager();
     uint8_t *page = nullptr;
-
-    int ret = pager->get(page_num, &page);
+    int ret = table_->pager()->get(page_num_, &page);
     if(ret != SUCCESS) {
         return nullptr;
     }
-    uint32_t row_offset = row_num_ % ROWS_PER_PAGE;
-    uint32_t byte_offset = row_offset * ROW_SIZE;
+    LeafNode leaf_node(page);
     
-    return page + byte_offset;
+    return leaf_node.value(cell_num_);
 }
 
 void Cursor::next() {
-    row_num_ += 1;
-    if(row_num_ >= table_->num_rows()) {
+    uint8_t *page = nullptr;
+    int ret = table_->pager()->get(page_num_, &page);
+    if(ret != SUCCESS) {
+        return;
+    }
+    cell_num_ += 1;
+    LeafNode leaf_node(page);
+    if(cell_num_ >= (*leaf_node.num_cells())) {
         end_of_table_ = true;
     }
 }
+
+int Cursor::insert(uint32_t key, Row *value) {
+    uint8_t *page;
+    int ret = table_->pager()->get(page_num_, &page);
+    if(ret != SUCCESS) {
+        return ret;
+    }
+    LeafNode leaf_node(page);
+    uint32_t num_cells = *leaf_node.num_cells();
+    if(num_cells >= LEAF_NODE_MAX_CELLS) {
+        // Node full
+        // TODO : we haven't implement splitting yet
+        printf("Need to implement splitting a leaf node.\n");
+        exit(EXIT_FAILURE);
+    }
+    if(cell_num_ < num_cells) {
+        // make room for new cell
+        for (uint32_t i = num_cells; i > cell_num_; i--) {
+            // todo : ??? 
+            memcpy(leaf_node.cell(i), leaf_node.cell(i-1), LEAF_NODE_CELL_SIZE);
+        }
+    }
+    leaf_node.increase_num_cells();
+    leaf_node.set_key(key, cell_num_);
+    value->serialize(leaf_node.value(cell_num_));
+    return SUCCESS;
+}
+
 
 } // namespace burgerdb

@@ -26,13 +26,9 @@ public:
 
     Pager *pager() const { return pager_; }
 
-    uint32_t num_rows() const { return num_rows_; }
-
-    void set_num_rows(uint32_t num_rows) { num_rows_ = num_rows; }
-
-    void increase_num_rows() { num_rows_++; };
+    uint32_t root_page_num() { return root_page_num_; }
 private:
-    uint32_t num_rows_;
+    uint32_t root_page_num_;
     Pager *pager_;
 };
     
