@@ -3,40 +3,99 @@
 
 #include <stdint.h>
 #include <string>
+#include <vector>
+#include <mutex>
 
-namespace burgerdb {
+namespace burgerdb 
+{
 
-enum class NodeType {
-    INTERNAL,
-    LEAF
+enum class BTreePageType 
+{
+    INVALID_PAGE_TYPE = 0,
+    LEAF_PAGE,
+    INTERNAL_PAGE
 };
 
-class Row;
 
-class LeafNode {
+// page layout
+// ---------------------------------------------------------------------
+// | page_type (4) | log_seq_num (4) | current_size (4) | max_size (4) |
+// ---------------------------------------------------------------------
+// | parent_page_id (4) | page_id(4) |
+// -----------------------------------
+class BtreeBasePage
+{
 public:
-    LeafNode(uint8_t *node);
+    BtreeBasePage() = default;
 
-    void init();
+    BtreeBasePage(BTreePageType type, uint32_t page_id, uint32_t parent_page_id, uint32_t max_size);
 
-    uint32_t *num_cells();
+    ~BtreeBasePage() = default;
 
-    void increase_num_cells(); 
+    bool is_leaf_page() const;
 
-    uint8_t *cell(uint32_t cell_num);
+    bool is_root_page() const;
 
-    uint8_t *key(uint32_t cell_num);
+    int get_min_size() const; 
 
-    void set_key(uint32_t key, uint32_t cell_num);
+protected:    
+    BTreePageType page_type_ = BTreePageType::INVALID_PAGE_TYPE;
+    uint32_t log_seq_num_ = -1;
+    uint32_t current_size_ = 0;
+    uint32_t max_size_ = 0;
+    uint32_t parent_page_id_ = -1;
+    uint32_t page_id_ = -1;
+};
 
-    uint8_t *value(uint32_t cell_num);
+// internal page dosen't contain data, it only store n key entries and n+1 child pointers (page_id)
+// ----------------------------------------------------------------------------------
+// | key(1) : ignore | page_id(1) | key(2) | page_id(2) | key(2) | page_id(3) | ... |
+// ----------------------------------------------------------------------------------
+// keys are stored in increasing order        
+template <typename KeyType, typename ValueType, typename KeyComparator>
+class BtreeInternalPage : public BtreeBasePage
+{
+public:
+    BtreeInternalPage(uint32_t page_id, uint32_t parent_page_id, uint32_t max_size);
 
-    void print();
+    ~BtreeInternalPage() = default;
+
+    KeyType key(int index) const;
+
+    void set_key(int index, const KeyType &key);
+
+    void set_key(int index, KeyType &&key);
+
+    int val_index(const ValueType &value) const;
+
+    ValueType value(int index) const;    
+
+    struct KV
+    {
+        KeyType key;
+        ValueType value;
+    };
+private:
+    std::vector<KV *> kv_vec_;
+    std::mutex mutex_;
+};
+
+
+template <typename KeyType, typename ValueType, typename KeyComparator>
+class BtreeLeafPage : public BtreeBasePage
+{
+public:
+    struct KV
+    {
+        KeyType key;
+        ValueType value;
+    };
 
 private:
-    uint8_t *node_;
+    uint32_t next_page_id_;
+    std::vector<KV *> kv_vec_;
+    std::mutex mutex_;  
 };
-
 
 } // namespace burgerdb
 

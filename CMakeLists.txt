@@ -27,7 +27,7 @@ set(CXX_FLAGS
  -march=native
  -Wno-pointer-arith
   # -MMD
- -std=c++11
+ -std=c++17
  -rdynamic
  -pthread   # check
  )

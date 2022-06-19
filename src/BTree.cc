@@ -4,47 +4,76 @@
 
 namespace burgerdb {
 
-LeafNode::LeafNode(uint8_t *node) 
-    : node_(node) {
-}   
-
-void LeafNode::init() {
-    *num_cells() = 0;
+BtreeBasePage::BtreeBasePage(BTreePageType type, uint32_t page_id, uint32_t parent_page_id, uint32_t max_size)
+    : page_type_(type),
+    max_size_(max_size),
+    page_id_(page_id),
+    parent_page_id_(parent_page_id) 
+{
 }
 
-uint32_t *LeafNode::num_cells() {
-    // todo : can't use static_cast here
-    return reinterpret_cast<uint32_t *>(node_ + LEAF_NODE_NUM_CELLS_OFFSET);
+bool BtreeBasePage::is_leaf_page() const
+{
+    return page_type_ == BTreePageType::LEAF_PAGE;
 }
 
-void LeafNode::increase_num_cells() {
-    *(this->num_cells()) += 1;
+bool BtreeBasePage::is_root_page() const 
+{
+    return parent_page_id_ == INVALID_PAGE_ID;
 }
 
-uint8_t *LeafNode::cell(uint32_t cell_num) {
-    return node_ + LEAF_NODE_HEADER_SIZE + cell_num * LEAF_NODE_CELL_SIZE;
+// Generally, min page size == max page size / 2
+int BtreeBasePage::get_min_size() const
+{
+    return max_size_ / 2;
 }
 
-uint8_t *LeafNode::key(uint32_t cell_num) {
-    return this->cell(cell_num);
+template<typename KeyType, typename ValueType, typename KeyComparator>
+BtreeInternalPage<KeyType, ValueType, KeyComparator>::BtreeInternalPage(uint32_t page_id, uint32_t parent_page_id, uint32_t max_size)
+    : BtreeBasePage(BTreePageType::INTERNAL_PAGE, page_id, parent_page_id, max_size)
+{
 }
 
-void LeafNode::set_key(uint32_t key, uint32_t cell_num) {
-    *reinterpret_cast<uint32_t *>(this->key(cell_num)) = key;
+template<typename KeyType, typename ValueType, typename KeyComparator>
+KeyType BtreeInternalPage<KeyType, ValueType, KeyComparator>::key(int index) const
+{
+    assert(index < kv_vec_.size());
+    return kv_vec_[index].key;
 }
 
-uint8_t *LeafNode::value(uint32_t cell_num) {
-    return this->cell(cell_num) + LEAF_NODE_KEY_SIZE;
+template<typename KeyType, typename ValueType, typename KeyComparator>
+void BtreeInternalPage<KeyType, ValueType, KeyComparator>::set_key(int index, const KeyType &key)
+{
+    assert(index < kv_vec_.size());
+    kv_vec_[index].key = key;
 }
 
-void LeafNode::print() {
-    uint32_t num_cells = *this->num_cells();
-    fprintf(stderr, "leaf (size %d)\n");
-    for (uint32_t i = 0; i < num_cells; i++) {
-        uint32_t key = *this->key(i);
-        fprintf(stderr, "  - %d : %dn\n", i, key);
+template<typename KeyType, typename ValueType, typename KeyComparator>
+void BtreeInternalPage<KeyType, ValueType, KeyComparator>::set_key(int index, KeyType &&key)
+{
+    assert(index < kv_vec_.size());
+    kv_vec_[index].key = std::move(key);
+}
+
+template<typename KeyType, typename ValueType, typename KeyComparator>
+int BtreeInternalPage<KeyType, ValueType, KeyComparator>::val_index(const ValueType &value) const
+{
+    // key has order but value dosen't, so we scan to search
+    for(uint32_t i = 0; i < current_size_; i++) 
+    {
+        if(kv_vec_[i].value == value) 
+        {
+            return i;
+        }
     }
+    return -1;
 }
 
+template<typename KeyType, typename ValueType, typename KeyComparator>
+ValueType BtreeInternalPage<KeyType, ValueType, KeyComparator>::value(int index) const
+{
+    assert(index < kv_vec_.size());
+    return kv_vec_[index].value;
+}
 
 } // namespace burgerdb
